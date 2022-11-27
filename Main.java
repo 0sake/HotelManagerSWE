@@ -1,8 +1,9 @@
 public class Main {
     public static void main(String[] args){
-        User u0 = new User("giovanni","pollo@gmail.com");
+        UserFactory c0 = new UserFactory();
+        User u0 = c0.createUser("pollo", "cose");
         User u1 = new User("giacomo","rollo@gmail.com");
-        u0.getName(u0);
-        u1.getEmail(u1);
+        u0.getName();
+        u1.getEmail();
     }
 }

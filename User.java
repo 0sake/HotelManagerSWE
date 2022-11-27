@@ -2,12 +2,12 @@ public class User {
     protected String name = "name";
     protected String email;
 
-    public void getName(User u){
-        System.out.println(u.name);
+    public void getName(){
+        System.out.println(this.name);
     }
 
-    public void getEmail(User u){
-        System.out.println(u.email);
+    public void getEmail(){
+        System.out.println(this.email);
     }
 
     public User(String inputName ,String inputEmail ){
