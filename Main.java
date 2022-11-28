@@ -1,9 +1,17 @@
 public class Main {
     public static void main(String[] args){
-        UserFactory c0 = new UserFactory();
-        User u0 = c0.createUser("pollo", "cose");
-        User u1 = new User("giacomo","rollo@gmail.com");
-        u0.getName();
-        u1.getEmail();
+
+       
+        UserManager um = new UserManager();
+        um.registerUser();
+        um.showUsers();
+        um.registerUserAuto("pollo@swe.it","andrea");
+        um.showUsers();
+        um.registerUserAuto("rollo@swe.it","francesco");
+        um.showUsers();
+        um.deleteUser(um.userList.get(1));
+        um.showUsers();
+        um.deleteAllUsers();
+        um.showUsers();
     }
 }
