@@ -1,7 +1,9 @@
+package User_Management;
+
 import java.util.*;
 
 public class UserManager {
-    ArrayList<User> userList = new ArrayList<User>();
+    protected ArrayList<User> userList = new ArrayList<User>();
 
     public void registerUser(){
         Scanner sc = new Scanner(System.in);
@@ -36,6 +38,10 @@ public class UserManager {
                 userList.remove(i);
             }
         }
+    }
+
+    public ArrayList<User> getUserList() {
+        return userList;
     }
 
     public void deleteAllUsers(){

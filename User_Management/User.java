@@ -1,3 +1,5 @@
+package User_Management;
+
 public class User {
     protected String name = "name";
     protected String email;

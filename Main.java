@@ -1,7 +1,8 @@
+import User_Management.UserManager;
+
 public class Main {
     public static void main(String[] args){
 
-       
         UserManager um = new UserManager();
         um.registerUser();
         um.showUsers();
@@ -9,7 +10,7 @@ public class Main {
         um.showUsers();
         um.registerUserAuto("rollo@swe.it","francesco");
         um.showUsers();
-        um.deleteUser(um.userList.get(1));
+        um.deleteUser(um.getUserList().get(1));
         um.showUsers();
         um.deleteAllUsers();
         um.showUsers();
