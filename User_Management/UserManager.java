@@ -32,6 +32,15 @@ public class UserManager {
         }
     }
 
+    public void showUser(User u0){
+        for(int i=0;i<userList.size();i++){
+            if(u0 == userList.get(i)){
+                System.out.println(userList.get(i).name);
+                System.out.println(userList.get(i).email);
+            }
+        }
+    }
+
     public void deleteUser(User u0){
         for(int i=0;i<userList.size();i++){
             if(u0 == userList.get(i)){
