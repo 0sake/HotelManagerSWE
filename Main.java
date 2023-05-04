@@ -19,6 +19,7 @@ public class Main {
         //provo ad implementare un menù come una funzione ricorsiva
         m1.menu();
 
+
         
         
 
@@ -63,6 +64,29 @@ public class Main {
         //rm.showRoomReservation(rm.getRoomReservationList().get(0));
 
         //rm.createRoomReservationList();
+
+                //metodo veloce di confronto fra date
+                String data1 = "2023-04-25";
+                String data2 = "2023-03-27";
+        
+                if(data1.compareTo(data2) > 0){
+                    System.out.println("La data di inizio deve essere precedente a quella di fine");
+                }
+        
+
+        //debug chechDateValidity() testata per tutti e 5 i casi di sovrapposizione
+        //ora dovrebbe essere totalmente funzionante
+        String data1Begin = "2023-04-28";
+        String data1End = "2023-04-30";
+        String data2Begin = "2023-04-25";
+        String data2End = "2023-04-27";
+        ReservationManager rrm = new ReservationManager();
+        if(rrm.checkDateValidity(data1Begin, data1End, data2Begin, data2End)){
+            System.out.println("i range non sono sovrapposti l'uno all'altro");
+        }
+        else{
+            System.out.println("Il range data 1 è contenuto in quello di data 2");
+        }
 
     }
 

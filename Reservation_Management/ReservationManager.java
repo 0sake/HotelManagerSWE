@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 import Database_Connector.*;
+import Reservation_Management.Room_Management.Room;
 
 public class ReservationManager {
 
@@ -11,15 +12,26 @@ public class ReservationManager {
         ReservationFactory rf = new ReservationFactory();
         RoomReservation r = rf.createRoomReservation(roomNumber, dateBegin, dateEnd, u);
         try{
-            //TODO modificare il metodo di controllo per i conflitti delle date, al momento non si controlla l'overlap
             Connection conn = MySqlCon.initConnessione();
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("select * from roomreservation");
+            
+            //ResultSet rs = stmt.executeQuery("select * from roomreservation");
+            //nuova query che cerca tra le room reservation quelle che matchano l'id della camera chew vogliamo prenotare
+
+            ResultSet rs = stmt.executeQuery("select * from roomreservation where roomID = '"+roomNumber+"'");
+
             Boolean guard = false;
             while(!guard){
                 guard = true;
                 while(rs.next()){
-                    if(rs.getString(1).equals(Integer.toString(roomNumber)) && rs.getString(2).equals(dateBegin) && rs.getString(3).equals(dateEnd)){
+                    //preservo il vecchio metodo di controllo della data per problemi eventuali al nuovo metodo
+                    // if(rs.getString(1).equals(Integer.toString(roomNumber)) && rs.getString(2).equals(dateBegin) && rs.getString(3).equals(dateEnd)){
+                    //     System.out.println("Prenotazione già effettuata");
+                    //     guard = false;
+                    // }
+                    //nuovo metodo di controllo della sovrapposizione dei range delle date della prenotazione da effettuare con quelle già effettuate
+                    //TODO controllare che il metodo funzioni
+                    if(!(checkDateValidity(dateBegin, dateEnd, rs.getString(2), rs.getString(3)))){
                         System.out.println("Prenotazione già effettuata");
                         guard = false;
                     }
@@ -79,7 +91,7 @@ public class ReservationManager {
         }
         return a;
     }
-    //TODO modificare la funzione per gestire il caso in cui non si trovi una prenotazione
+    //se la prenotazione non viene trovata la funzione restituisce null
     public RoomReservation searchRoomReservation(int roomNumber, String email){
         RoomReservation r = null;
         ReservationFactory rf = new ReservationFactory();
@@ -99,6 +111,17 @@ public class ReservationManager {
         return r;
     }
 
+    public void cancelRoomReservation(RoomReservation rr){
+        try{
+            Connection conn = MySqlCon.initConnessione();
+            Statement stmt = conn.createStatement();
+            String query = "delete from roomreservation where roomID = '"+rr.getId()+"' and startDate = '"+rr.getDateBegin()+"' and endDate = '"+rr.getDateEnd()+"' and UserEmail = '"+rr.getUser().getEmail()+"'";
+            stmt.executeUpdate(query);
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
     public void showAllReservation(){
         
     }
@@ -111,8 +134,15 @@ public class ReservationManager {
         
     }
 
-    
-
+    //ritorna falso se il range [dataBegin, dataEnd] è contenuto nel range [dataDbBegin, dataDbEnd]
+    public Boolean checkDateValidity(String dataBegin, String dataEnd, String dataDbBegin, String dataDbEnd){
+        
+        if(((dataBegin.compareTo(dataDbBegin) > 0) && (dataDbEnd.compareTo(dataBegin) > 0)) || ((dataEnd.compareTo(dataDbBegin) > 0) && (dataDbEnd.compareTo(dataEnd) > 0))){
+            return false;
+        } 
+        
+        return true;
+    }
   
 
    
