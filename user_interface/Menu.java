@@ -32,13 +32,33 @@ public class Menu {
     }
 
 
-    //TODO scrivere una funzione che elimina una prenotazione
+    //TODO aggiungere cancellazione attività
     public void eliminaPrenotazione(int tipoPrenotazione){
+        ReservationManager rm = new ReservationManager();
+        Scanner scanner1 = new Scanner(System.in);
+        System.out.println("Inserire l' email utilizzata per la prenotazione da eliminare:");
+        String email = scanner1.nextLine();
+        while(!email.contains("@")){
+            System.out.println("Inserire una email valida:");
+            email = scanner1.nextLine();
+        }
+        switch(tipoPrenotazione){
+            case 0: 
+                System.out.println("Inserire il numero di camera:");
+                int roomNumber = Integer.parseInt(scanner1.nextLine());
+                while(rm.searchRoomReservation(roomNumber,email) == null){
+                    System.out.println("Inserire il numero di camera:");
+                    roomNumber = Integer.parseInt(scanner1.nextLine());
+                }
+                RoomReservation rr = rm.searchRoomReservation(roomNumber,email);
+                rm.cancelRoomReservation(rr);
+            case 1:
+        }
 
 
     }
 
-
+    //TODO aggiungere database contente setup delle camere: 1-numero camera 2-tipo camera 3-prezzo camera
     public  void nuovaPrenotazione(int tipoPrenotazione){
         ReservationManager rm = new ReservationManager();
         UserManager um = new UserManager();
@@ -60,8 +80,11 @@ public class Menu {
         } 
         
         
-        int roomNumber,id;
+        int roomNumber,idAttività;
         if(tipoPrenotazione == 0){
+            //TODO controllare che la stringa inserita sia una data valida e che il range inserito sia valido
+            //TODO prendere come input il numero di posti e con quello cercare camere disponibili
+            //TODO potrei chiedere una data dalla quale mostrare la disponibilità delle camere e poi chiedere il range delle date da prenotare
             System.out.println("Inserire la data di inizio prenotazione (YYYY-MM-DD):");
             String dataInizio = scanner1.nextLine();
             System.out.println("Inserire la data di fine prenotazione (YYYY-MM-DD):");
@@ -78,12 +101,11 @@ public class Menu {
             System.out.println("Inserire l' orario di fine (hh:mm):");
             String orarioFine = scanner1.nextLine();
             System.out.println("Inserire il tipo di attività dell' attività [0-Tennis]:");
-            id = Integer.parseInt(scanner1.nextLine());
-            ActivityReservation aR = rm.createActivityReservation(id, dataAttività, orarioInzio, orarioFine, u);
+            idAttività = Integer.parseInt(scanner1.nextLine());
+            ActivityReservation aR = rm.createActivityReservation(idAttività, dataAttività, orarioInzio, orarioFine, u);
             System.out.println("Prenotazione creata con successo  Attività:" + aR.getActivityType() + "   Data: " + aR.getDateBegin() + "   Ora inizio : " + aR.getTimeStart() + "   Ora fine : " + aR.getTimeEnd() + "   Utente: " + aR.getUser().getName() );
         }
-        
-        
-
     }
+
+    public void calendario(){}
 }
