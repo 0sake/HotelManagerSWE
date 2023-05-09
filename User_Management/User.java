@@ -2,7 +2,7 @@ package User_Management;
 
 public class User {
     protected String name = "name";
-    protected String email;
+    protected String email = "email";
 
     public String getName(){
         return this.name;
@@ -20,7 +20,7 @@ public class User {
         this.email = inputEmail;
     }
 
-    public User(String inputName ,String inputEmail ){
+    public User(String inputName ,String inputEmail){
         this.name = inputName;
         this.email = inputEmail;
     }
@@ -29,5 +29,4 @@ public class User {
         this.name = "name";
         this.email = "email";
     }
-
 }

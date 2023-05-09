@@ -15,9 +15,23 @@ public class Main {
 
         //funzione per testare il fuznionamento del programma
         //test();
-        Menu m1 = new Menu();
+        
         //provo ad implementare un menù come una funzione ricorsiva
-        m1.menu();
+
+        Menu m1 = new Menu();
+        Boolean exit = false;
+        while(!exit){
+            User u = m1.login();
+            //menu selector apre il menu admin se il nome dell' utente che si registra è admin
+            m1.menuSelector(u);
+            System.out.println("Vuoi effettuare un nuovo login o vuoi chiudere il programma? 0-Login 1-Chiudi");
+            Scanner sc = new Scanner(System.in);
+            int scelta = Integer.parseInt(sc.nextLine());
+            if(scelta == 1){
+                exit = true;
+            }
+
+        }
 
 
         
@@ -34,11 +48,11 @@ public class Main {
         UserManager um = new UserManager();
         um.registerNewUser();
         um.showUsers();
-        um.registerUserAuto("pollo@swe.it","andrea");
+        //um.registerUserAuto("pollo@swe.it","andrea");
         um.showUsers();
-        um.registerUserAuto("rollo@swe.it","francesco");
+        //um.registerUserAuto("rollo@swe.it","francesco");
         um.showUsers();
-        um.deleteUser(um.getUserList().get(1));
+        //um.deleteUser(um.getUserList().get(1));
         um.showUsers();
         
 
