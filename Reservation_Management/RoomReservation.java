@@ -3,28 +3,23 @@ import User_Management.*;
 
 public class RoomReservation extends Reservation {
     
-    public String getEmail(){
-        return this.user.getEmail();
+    protected int roomNumber;
+
+    public int getRoomNumber(){
+        return this.roomNumber;
     }
 
-    public String getDateBegin(){
-        return this.dateBegin;
+    public void setRoomNumber(int roomNumber){
+        this.roomNumber = roomNumber;
     }
-
-    public void setEmail(String inputEmail){
-        this.user.setEmail(inputEmail);
-    }
-
-    public void setDateBegin(String inputDateBegin){
-        this.dateBegin = inputDateBegin;
-    }
-
-
 
     public RoomReservation(int roomNumber,String dateBegin,String dateEnd,User u){
-        this.id = roomNumber;
+        this.roomNumber = roomNumber;
         this.dateBegin = dateBegin;
         this.dateEnd = dateEnd;
         this.user = u;
+        //impostiamo l'ora di inizio e fine a valori predefiniti ipotizzando di simulare il tempo di pulizia della stanza
+        this.timeStart = "14:00";
+        this.timeEnd = "10:00";
     }
 }

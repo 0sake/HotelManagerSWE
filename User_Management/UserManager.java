@@ -56,11 +56,12 @@ public class UserManager {
         String email = sc.nextLine();
         try{
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("select * from users");
+            ResultSet rs;
             Boolean validEmail = false;
             Boolean validPsw = false;
             while(!validEmail && !validPsw){
                 while(!validEmail){
+                    rs = stmt.executeQuery("select * from users");
                     while(rs.next()){
                         if(rs.getString(2).equals(email)){
                             System.out.println("Email trovata");
@@ -79,7 +80,7 @@ public class UserManager {
                 String password = sc.nextLine();
                 //controllo del match tra la password inserita e quella contenua nel database
                 while(!validPsw){
-                    rs = stmt.executeQuery("select * from users where emaill = '"+email+"'");
+                    rs = stmt.executeQuery("select * from users where email = '"+email+"'");
                     while(rs.next()){
                         if(rs.getString(3).equals(password)){
                             System.out.println("Password corretta");
@@ -101,24 +102,7 @@ public class UserManager {
         }
         return null;
     }
-    // al momento non utilizzato
-    public User findUserFromEmail(String email){
-        Connection conn = MySqlCon.initConnessione();
-        UserFactory uf = new UserFactory();
-        try{
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("select * from users");
-            while(rs.next()){
-                if(rs.getString(2).equals(email)){
-                    //TODO modificare perchè in teoria è l'utente loggato a dover essere restituito
-                    return uf.createUser(rs.getString(1), rs.getString(2));
-                }
-            }
-        }catch(SQLException e){
-            e.printStackTrace();
-        }
-        return null;
-    }
+
     
     
     
@@ -140,6 +124,7 @@ public class UserManager {
     }
 
     public void showUser(User u0){
+        System.out.printf("%-15s %-15s%n","Name: "+u0.getName()," Email: "+u0.getEmail());
     }
 
     public void deleteUser(String email){
@@ -159,10 +144,5 @@ public class UserManager {
                 System.out.println("Utente eliminato.");
             }
         }
-    }
-
-
-
-    public void deleteAllUsers(){
     }
 }

@@ -2,9 +2,15 @@ package Reservation_Management;
 import User_Management.*;
 import java.sql.*;
 import java.util.Scanner;
+
+import javax.naming.spi.DirStateFactory.Result;
+import javax.swing.plaf.nimbus.State;
+
 import java.util.*;
 
 import Database_Connector.*;
+import Reservation_Management.Activity_Management.Activity;
+import Reservation_Management.Activity_Management.ActivityManager;
 import Reservation_Management.Room_Management.Room;
 
 public class ReservationManager {
@@ -15,23 +21,12 @@ public class ReservationManager {
         try{
             Connection conn = MySqlCon.initConnessione();
             Statement stmt = conn.createStatement();
-            
-            //ResultSet rs = stmt.executeQuery("select * from roomreservation");
-            //nuova query che cerca tra le room reservation quelle che matchano l'id della camera chew vogliamo prenotare
-
             ResultSet rs = stmt.executeQuery("select * from roomreservation where roomID = '"+roomNumber+"'");
-
             Boolean guard = false;
             while(!guard){
                 guard = true;
                 while(rs.next()){
-                    //preservo il vecchio metodo di controllo della data per problemi eventuali al nuovo metodo
-                    // if(rs.getString(1).equals(Integer.toString(roomNumber)) && rs.getString(2).equals(dateBegin) && rs.getString(3).equals(dateEnd)){
-                    //     System.out.println("Prenotazione già effettuata");
-                    //     guard = false;
-                    // }
-                    //nuovo metodo di controllo della sovrapposizione dei range delle date della prenotazione da effettuare con quelle già effettuate
-                    
+                    //nuovo modo di controllo della sovrapposizione dei range delle date della prenotazione da effettuare con quelle già effettuate                  
                     if(!(checkDateValidity(dateBegin, dateEnd, rs.getString(2), rs.getString(3)))){
                         System.out.println("Prenotazione già effettuata");
                         guard = false;
@@ -54,9 +49,9 @@ public class ReservationManager {
         return r;
     }
 
-    public ActivityReservation createActivityReservation(int id, String data, String timeStart, String timeEnd, User u) {
+    public ActivityReservation createActivityReservation(String activityType, int fieldNumber, String data, String timeStart, String timeEnd, User u) {
         ReservationFactory rf = new ReservationFactory();
-        ActivityReservation a = rf.createActivityreservation(id, data, timeStart, timeEnd, u);
+        ActivityReservation a = rf.createActivityreservation(activityType, fieldNumber, data, timeStart, timeEnd, u);
         try{
             Connection conn = MySqlCon.initConnessione();
             Statement stmt = conn.createStatement();
@@ -93,9 +88,7 @@ public class ReservationManager {
         return a;
     }
 
-    //restituisce vero se le date scelte sono compatibili con qeulle esistenti ed è possibile effettuare la prenotazione
     public void checkRoomAvailability(int nPosti, String dataInizioDispo){
-
         try{
             Connection conn = MySqlCon.initConnessione();
             Statement stmt = conn.createStatement();
@@ -136,37 +129,37 @@ public class ReservationManager {
     }
 
 
-    //se la prenotazione non viene trovata la funzione restituisce null
 
-    //la funzione non viene utilizzata al momento
-    public RoomReservation searchRoomReservation(int roomNumber, String email){
-        RoomReservation r = null;
-        ReservationFactory rf = new ReservationFactory();
-        UserManager um = new UserManager();
+    public Boolean cancelRoomReservation(RoomReservation rr){
         try{
             Connection conn = MySqlCon.initConnessione();
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("select * from roomreservation");
-            while(rs.next()){
-                if(rs.getString(1).equals(Integer.toString(roomNumber)) && rs.getString(4).equals(email)){
-                    r = rf.createRoomReservation(roomNumber, rs.getString(2), rs.getString(3), um.findUserFromEmail(email));
-                }
+            String query = "delete from roomreservation where roomID = '"+rr.getRoomNumber()+"' and startDate = '"+rr.getDateBegin()+"' and endDate = '"+rr.getDateEnd()+"' and UserEmail = '"+rr.getUser().getEmail()+"'";
+            if(stmt.executeUpdate(query) == 0){
+                return false;
+            }else{
+                return true;
             }
         }catch(SQLException e){
             e.printStackTrace();
         }
-        return r;
+        return false;
     }
 
-    public void cancelRoomReservation(RoomReservation rr){
+    public Boolean cancelActivityReservation(ActivityReservation ar){
         try{
             Connection conn = MySqlCon.initConnessione();
             Statement stmt = conn.createStatement();
-            String query = "delete from roomreservation where roomID = '"+rr.getId()+"' and startDate = '"+rr.getDateBegin()+"' and endDate = '"+rr.getDateEnd()+"' and UserEmail = '"+rr.getUser().getEmail()+"'";
-            stmt.executeUpdate(query);
+            String query = "delete from "+ar.getActivityType()+"reservation where ActivityDate = '"+ar.getDateBegin()+"' and StartTime = '"+ar.getTimeStart()+"' and EndTime = '"+ar.getTimeEnd()+"' and UserEmail = '"+ar.getUser().getEmail()+"'";
+            if(stmt.executeUpdate(query) == 0){
+                return false;
+            }else{
+                return true;
+            }
         }catch(SQLException e){
             e.printStackTrace();
         }
+        return false;
     }
 
     public void showAllReservation(){
@@ -175,6 +168,32 @@ public class ReservationManager {
 
     public void showRoomReservation(RoomReservation r){
         
+    }
+
+    public void checkActivityAvailability(String activityName, String dataInizioDispo){
+        Connection conn = MySqlCon.initConnessione();
+        ActivityManager am = new ActivityManager();
+        try{
+            ArrayList<Integer> fieldList = am. getActivitiesFields(activityName);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("select * from " + activityName + "reservation where ActivityDate >= '"+dataInizioDispo+"'");
+            while(rs.next()){
+                if(fieldList.contains(rs.getInt("fieldNumber"))){
+                    fieldList.remove(fieldList.indexOf(rs.getInt("fieldNumber")));
+                }
+                System.out.println("Numero campo: " + rs.getString("fieldNumber") + "  " + "Data: " +  rs.getString("ActivityDate") + "  " + "Orario inizio: " + rs.getString("StartTime") + "  " + "Orario fine: " + rs.getString("EndTime"));
+            }
+            //in fieldList ho la lista dei campi dell' attività che non hanno prenotazioni
+            System.out.println("CAMPI NON PRENOTATI:");
+            int i = 0;
+            while(i < fieldList.size()){
+                System.out.println("Numero campo: " + fieldList.get(i));
+                i++;
+            }
+
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
     }
 
     public void showActivityReservation(ActivityReservation a){
@@ -202,6 +221,26 @@ public class ReservationManager {
         }catch(SQLException e){
             e.printStackTrace();
         }
+    }
+    //stampa tutte le prenotazioni di attività di un utente
+    public void showUserActivityReservation(User u){
+        ActivityManager am = new ActivityManager();
+        ArrayList<String> at =  am.getActivitiesTypes();
+        int i=0;
+        while(i<at.size()){
+            try{
+                Connection conn = MySqlCon.initConnessione();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery("select * from "+ at.get(i) +"reservation where UserEmail = '"+u.getEmail()+"'");
+                while(rs.next()){
+                    System.out.println("Prenotazioni effettuate per l'attività " + at.get(i) + ": ");
+                    System.out.println("Numero campo: "+rs.getString(1)+"\nData: "+rs.getString(2)+"\nOrario inizio: "+rs.getString(3)+"\nOrario fine: "+rs.getString(4)+"\n");
+                }   
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
+            i++;
+        }  
     }
   
 

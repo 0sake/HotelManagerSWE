@@ -21,7 +21,7 @@ public class Main {
         Menu m1 = new Menu();
         Boolean exit = false;
         while(!exit){
-            User u = m1.login();
+            User u = m1.loginMenu();
             //menu selector apre il menu admin se il nome dell' utente che si registra è admin
             m1.menuSelector(u);
             System.out.println("Vuoi effettuare un nuovo login o vuoi chiudere il programma? 0-Login 1-Chiudi");
@@ -79,7 +79,7 @@ public class Main {
 
         //rm.createRoomReservationList();
 
-                //metodo veloce di confronto fra date
+                //modo veloce di confronto fra date
                 String data1 = "2023-04-25";
                 String data2 = "2023-03-27";
         

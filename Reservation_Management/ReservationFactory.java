@@ -1,15 +1,17 @@
 package Reservation_Management;
 import User_Management.*;
+import Database_Connector.*;
+import java.sql.*;
 public class ReservationFactory {
-    
-    public RoomReservation createRoomReservation(int id,String dateBegin,String dateEnd,User u){
-        RoomReservation r = new RoomReservation(id,dateBegin, dateEnd, u);
-        
+    //TODO implementare costruttore con solo activityType , fieldNumber, user
+
+    public RoomReservation createRoomReservation(int roomNumber,String dateBegin,String dateEnd,User u){
+        RoomReservation r = new RoomReservation(roomNumber,dateBegin, dateEnd, u);      
         return  r;
     }
 
-    public ActivityReservation createActivityreservation(int id,String date, String timeStart, String timeEnd ,User u){
-        ActivityReservation a = new ActivityReservation(id,date,timeStart,timeEnd,u);
+    public ActivityReservation createActivityreservation(String activityType, int fieldNumber,String date, String timeStart, String timeEnd ,User u){
+        ActivityReservation a = new ActivityReservation(activityType, fieldNumber,date,timeStart,timeEnd,u);
         return  a;
     }
 
