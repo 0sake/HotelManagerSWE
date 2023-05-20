@@ -11,6 +11,8 @@ import Database_Connector.*;
 import java.sql.*;
 import java.util.*;
 
+import com.mysql.cj.jdbc.exceptions.MySQLQueryInterruptedException;
+
 public class Menu {
 
     public void menuSelector(User u){
@@ -111,12 +113,21 @@ public class Menu {
                             break;
                     }
                 case 2:
-                    System.out.println("[MENU ADMIN] 0-AGGIUNGI CAMERA 1-ELIMINA CAMERA");
+                    System.out.println("[MENU ADMIN] 0-AGGIUNGI ATTIVITA' 1-ELIMINA ATTIVITA'");
                     choice = Integer.parseInt(scanner1.nextLine());
+                    ActivityManager am = new ActivityManager();
                     switch(choice){
                         case 0:
+                            System.out.println("Inserire il nome dell'attività da aggiungere: ");
+                            String name = scanner1.nextLine();
+                            System.out.println("Inserire il numero del campo dell' attività: ");
+                            int field = Integer.parseInt(scanner1.nextLine());
+                            am.createNewActivity(name, field);
                             break;
                         case 1:
+                            System.out.println("Inserire l' id dell'attività da eliminare:");
+                            int id = Integer.parseInt(scanner1.nextLine());
+                            //am.deleteActivity(id);
                             break;
                     }
                     //TODO aggiungere funzione addActivity 
@@ -125,9 +136,6 @@ public class Menu {
                     //TODO aggiungere funzione showActivities e deleteActivity
                     //ActivityManager am = new ActivityManager();
                     // am.showActivities();
-                    System.out.println("Inserire l' id dell'attività da eliminare:");
-                    int id = Integer.parseInt(scanner1.nextLine());
-                    //am.deleteActivity(id);
                     break;
                 case 3:
                     break;
@@ -172,7 +180,6 @@ public class Menu {
         Scanner scanner1 = new Scanner(System.in);
         switch(tipoPrenotazione){
             case 0: 
-                //dobbiamo prima mostrare le prenotazioni effettuate dall' utente loggato
                 Boolean error = true;
                 while(error){
                     rm.showUserRoomReservations(u);
@@ -218,16 +225,29 @@ public class Menu {
                 }
                         
             case 1:
-                //TODO aggiungere cancellazione attività
                 rm.showUserActivityReservation(u);
-                System.out.println("Inserire l' attività da eliminare:");
-                String activityName = scanner1.nextLine();
-                System.out.println("Inserire il campo della prenotazione da eliminare:");
-                int fieldNumber = Integer.parseInt(scanner1.nextLine());
-                System.out.println("Inserire la data di inizio della prenotazione da eliminare:");
-                String startDate = scanner1.nextLine();
+                System.out.println("Inserire il numero dell' attività da eliminare (numero tra le parentesi quadre):");
+                int activityNumber = Integer.parseInt(scanner1.nextLine());
+                ActivityReservation activityReservation = rm.getUserActivityReservations(u).get(activityNumber);
                 ReservationFactory rf = new ReservationFactory();
-                //TODO una volta implementato il costruttore in ReservationFactory chiamiamo cancelActivityReservation e con gli if controlliamo se è andato a buon fine
+                try{
+                    Connection conn = MySqlCon.initConnessione();
+                    Statement stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery("select * from " +activityReservation.getActivityType()+"reservation where fieldnumber = '"+activityReservation.getFieldNumber()+"' AND activitydate = '"+activityReservation.getDateBegin()+"' AND UserEmail = '"+u.getEmail()+"'");
+                    //TODO se si trova un risultato allora si crea la prenotazione e si chiama il metodo cancelActivityReservation senno si richiede nuovi input
+                    while(rs.next()){
+                        if(activityReservation.getFieldNumber() == rs.getInt("fieldNumber") && activityReservation.getDateBegin().equals(rs.getString("ActivityDate")) && activityReservation.getUser().getEmail().equals(rs.getString("UserEmail")) && activityReservation.getTimeStart().equals(rs.getString("StartTime")) && activityReservation.getTimeEnd().equals(rs.getString("EndTime"))){
+                            if(rm.cancelActivityReservation(activityReservation) == true){
+                                System.out.println("Prenotazione eliminata con successo.");
+                            }else{
+                                System.out.println("Errore nell' eliminazione della prenotazione.");
+                            }
+                        }
+                    }
+
+                }catch(SQLException e){
+                    System.out.println(e);
+                } 
 
 
 
@@ -280,6 +300,7 @@ public class Menu {
                 }
             }
         }else{
+            
             ActivityManager am = new ActivityManager();
             am.showActivitiesTypes();
             System.out.println("Inserire il tipo di attività che si vuole prenotare:");
@@ -302,7 +323,7 @@ public class Menu {
             String dataInizioDispo = scanner1.nextLine();
             rm.checkActivityAvailability(activityType, dataInizioDispo);
 
-
+            //TODO controllare che le stringhe prese in input siano valide senno richiedere nuovi input
             System.out.println("Inserire il campo che si vuole prenotare:");
             int fieldNumber = Integer.parseInt(scanner1.nextLine());
             System.out.println("Inserire la data dell' attività (YYYY-MM-DD):");
@@ -311,9 +332,13 @@ public class Menu {
             String orarioInzio = scanner1.nextLine();
             System.out.println("Inserire l' orario di fine (hh:mm):");
             String orarioFine = scanner1.nextLine();
-
-            ActivityReservation aR = rm.createActivityReservation(activityType, fieldNumber, dataAttività, orarioInzio, orarioFine, u);
-            System.out.println("Prenotazione creata con successo  Attività:" + aR.getActivityType() + "   Data: " + aR.getDateBegin() + "   Ora inizio : " + aR.getTimeStart() + "   Ora fine : " + aR.getTimeEnd() + "   Utente: " + aR.getUser().getName() );
+            //con questo metodo si controlla che non ci siano altre prenotazioni che si sovrappongono con quella che si vuole creare
+            if(rm.checkActivityReservationAvailability(activityType, fieldNumber, dataAttività, orarioInzio, orarioFine) == false){
+                System.out.println("Non è possibile creare la prenotazione.");
+            }else{    
+                ActivityReservation aR = rm.createActivityReservation(activityType, fieldNumber, dataAttività, orarioInzio, orarioFine, u);
+                System.out.println("Prenotazione creata con successo  Attività:" + aR.getActivityType() + "   Data: " + aR.getDateBegin() + "   Ora inizio : " + aR.getTimeStart() + "   Ora fine : " + aR.getTimeEnd() + "   Utente: " + aR.getUser().getName() );
+            }
         }
     }
 

@@ -10,7 +10,7 @@ public class ReservationFactory {
         return  r;
     }
 
-    public ActivityReservation createActivityreservation(String activityType, int fieldNumber,String date, String timeStart, String timeEnd ,User u){
+    public ActivityReservation createActivityReservation(String activityType, int fieldNumber,String date, String timeStart, String timeEnd ,User u){
         ActivityReservation a = new ActivityReservation(activityType, fieldNumber,date,timeStart,timeEnd,u);
         return  a;
     }

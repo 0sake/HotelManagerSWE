@@ -7,21 +7,38 @@ import java.util.ArrayList;
 import Database_Connector.MySqlCon;
 
 public class ActivityManager {
+    //se l'attività esiste già ritorna false, altrimenti se non esiste il db (activityname)reservation lo crea e ritorna true
     public Boolean createNewActivity(String activityName, int fieldNumber){
         //TODO alla creazione di una nuova attività devo anche creare il db delle prenotazioni per quella attività
         try{
             Connection conn = MySqlCon.initConnessione();
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("selct * from activitysetup where activityName = '" + activityName + "'");
+            ResultSet rs = stmt.executeQuery("select * from activitysetup");
+            //non posso avere resultset che ritornano vuoti, quindi devo fare una query per vedere se esiste già l'attività
+            //ResultSet rs2 = stmt.executeQuery("select database()");
+            Boolean nameMatch = false;
             while(rs.next()){
-                if(rs.getString(1).equals(activityName) && rs.getInt(2) == fieldNumber){
-                    System.out.println("Activity already exists");
-                    return false;
+                if(rs.getString(1).equals(activityName)){
+                    //entro con nome matchato
+                    nameMatch = true;
+                    if(rs.getInt(2) == fieldNumber){
+                        //entro con nome e campo matchati
+                        System.out.println("Activity already exists");
+                        return false;
+                    }
                 }
             }
-            stmt.executeUpdate("insert into activitysetup values ('"+activityName+"',"+fieldNumber+")");
-            System.out.println("Activity created");
-            return true;
+            //qua arrivo se trovo match di nome ma non di campo oppure no match
+            if(stmt.executeUpdate("insert into activitysetup values ('"+activityName+"',"+fieldNumber+")") != 0){
+                System.out.println("Activity succesfully created");
+                if(!nameMatch){
+                    stmt.executeUpdate("create table "+activityName+"reservation (ActivityDate date, StartTime time, EndTime time, UserEmail varchar(30), fieldNumber smallint)");
+                }
+                return true;
+            }else{
+                System.out.println("[ERROR] Activity not created");
+                return false;
+            }
         }catch(SQLException e){
             e.printStackTrace();
         }
@@ -85,9 +102,9 @@ public class ActivityManager {
 
     public void showActivitiesTypes(){
         ArrayList<String> activityTypes = getActivitiesTypes();
-        System.out.println("Lista delle attività:");
+        System.out.println("Lista delle attività: ");
         for(String activityType : activityTypes){
-            System.out.println("Nome attività:" + activityType);
+            System.out.println("Nome attività: " + activityType);
         }
     }
 

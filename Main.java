@@ -1,6 +1,10 @@
 import User_Management.*;
 import Reservation_Management.*;
+
+import java.sql.*;
 import java.util.*;
+
+
 import user_interface.*;
 import Database_Connector.*;
 
@@ -15,7 +19,38 @@ public class Main {
 
         //funzione per testare il fuznionamento del programma
         //test();
-        
+        //TODO implementare la creazione del database se non esiste
+        Boolean db = false;
+        if(db){
+            try{
+                Connection conn = MySqlCon.initConnessione();
+                Statement stmt = conn.createStatement();
+                ResultSet rs2 = stmt.executeQuery("show tables");
+                Boolean match = false;
+                String dbName = "tennis";
+                while(rs2.next()){
+                    System.out.println("Nome:"+rs2.getString(1));
+                    if(rs2.getString(1).equals(dbName+"reservation")){
+                        match = true;
+                    }
+    
+                }
+                if(match == false){
+                    if(stmt.executeUpdate("create database if not exists "+dbName+"reservation") != 0){
+                        System.out.println("Database creato");
+                    }
+                    else{
+                        System.out.println("Database già esistente");
+                    }
+                }
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
+        }
+
+ 
+
+
         //provo ad implementare un menù come una funzione ricorsiva
 
         Menu m1 = new Menu();
@@ -100,6 +135,24 @@ public class Main {
         }
         else{
             System.out.println("Il range data 1 è contenuto in quello di data 2");
+        }
+
+        //lunghezza stringhe per controllo formattazione orario inserito
+        String ora01 = "10:00";
+        String ora02 = "11";
+        System.out.println(ora01.length());
+        System.out.println(ora02.length());
+
+
+        String ora1 = "12:00";
+        String ora2 = "13:00";
+        String ora3 = "10:00";
+        String ora4 = "11:00";
+        ReservationManager rm1 = new ReservationManager();
+        if(rm1.checkHourOverlap(ora1, ora2, ora3, ora4)){
+            System.out.println("Overlap");
+        }else{
+            System.out.println("No overlap");
         }
 
     }
